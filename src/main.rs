@@ -68,7 +68,7 @@ fn main() -> io::Result<()> {
                                 to_delete = Some(key);
                             }
                             v if v as i32 & libc::EPOLLOUT == libc::EPOLLOUT => {
-                                context.read_cb(key, epoll_fd)?;
+                                context.write_cb(key, epoll_fd)?;
                             }
                             v => println!("unexpected events: {}", v),
                         };

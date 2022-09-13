@@ -61,6 +61,7 @@ impl RequestContext {
                     .to_lowercase()
                     .strip_prefix("content-length:")
                 {
+                    println!("{}", self.content_length);
                     self.content_length = len.parse::<usize>().expect("content-length is valid");
                 }
             }

@@ -23,8 +23,14 @@ fn main() -> io::Result<()> {
 
     add_interest(epoll_fd, listener_fd, listener_read_event(key))?;
 
+    let mut time_cnt = 0;
     loop {
-        println!("requests in flight: {}", request_contexts.len());
+        println!(
+            "time : {} requests in flight: {}",
+            time_cnt,
+            request_contexts.len()
+        );
+        time_cnt += 1;
         events.clear();
 
         let res = match syscall!(epoll_wait(
@@ -60,6 +66,9 @@ fn main() -> io::Result<()> {
                             v if v as i32 & libc::EPOLLIN == libc::EPOLLIN => {
                                 context.read_cb(key, epoll_fd)?;
                                 to_delete = Some(key);
+                            }
+                            v if v as i32 & libc::EPOLLOUT == libc::EPOLLOUT => {
+                                context.read_cb(key, epoll_fd)?;
                             }
                             v => println!("unexpected events: {}", v),
                         };

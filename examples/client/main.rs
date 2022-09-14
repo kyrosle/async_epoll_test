@@ -5,7 +5,7 @@ use reqwest::header::{self, HeaderMap};
 async fn post() -> Result<(), reqwest::Error> {
     let client = reqwest::Client::new();
 
-    let image = std::fs::File::open("./asserts/image.jpg").unwrap();
+    let image = std::fs::File::open("./image.jpg").unwrap();
     let mut buffer = [0 as u8; 4096];
     let mut r = std::io::BufReader::new(image);
     r.read(&mut buffer);
@@ -15,12 +15,12 @@ async fn post() -> Result<(), reqwest::Error> {
     headers.insert("content-type", "text/html".parse().unwrap());
     headers.insert("content-length", "32".parse().unwrap());
 
-    let _resp = client
+    let req = client
         .post("http://127.0.0.1:8000")
         .headers(headers)
-        .json(&buffer)
-        .send()
-        .await?;
+        .json(&buffer).build()?;
+    println!("{:#?}", req);
+
     Ok(())
 }
 

@@ -1,8 +1,6 @@
 use std::io;
 use std::os::unix::io::RawFd;
 
-use libc::syscall;
-
 // 调用epoll api
 #[macro_export]
 macro_rules! syscall {
@@ -31,11 +29,11 @@ pub fn epoll_create() -> io::Result<RawFd> {
 
 /// # Arguments
 /// `epoll_fd` : epoll 实例的文件描述符
-/// 
+///
 /// `fd` : 注册的目标文件符
-/// 
+///
 /// `event` : fd 上监视的事件
-/// 
+///
 /// `libc::EPOLL_CTL_ADD` : 添加一个需要监视的文件描述符
 pub fn add_interest(epoll_fd: RawFd, fd: RawFd, mut event: libc::epoll_event) -> io::Result<()> {
     syscall!(epoll_ctl(epoll_fd, libc::EPOLL_CTL_ADD, fd, &mut event))?;
@@ -44,24 +42,24 @@ pub fn add_interest(epoll_fd: RawFd, fd: RawFd, mut event: libc::epoll_event) ->
 
 /// # Arguments
 /// `epoll_fd` : epoll 实例的文件描述符
-/// 
+///
 /// `fd` : 注册的目标文件符
-/// 
+///
 /// `event` : fd 上监视的事件
-/// 
+///
 /// `libc::EPOLL_CTL_MOD` : 修改一个需要监视的文件描述符
-pub fn modify_interest(epoll_d: RawFd, fd: RawFd, mut event: libc::epoll_event) -> io::Result<()> {
-    syscall!(epoll_ctl(epoll_d, libc::EPOLL_CTL_MOD, fd, &mut event))?;
+pub fn modify_interest(epoll_fd: RawFd, fd: RawFd, mut event: libc::epoll_event) -> io::Result<()> {
+    syscall!(epoll_ctl(epoll_fd, libc::EPOLL_CTL_MOD, fd, &mut event))?;
     Ok(())
 }
 
 /// # Arguments
 /// `epoll_fd` : epoll 实例的文件描述符
-/// 
+///
 /// `fd` : 注册的目标文件符
-/// 
+///
 /// `event` : fd 上监视的事件
-/// 
+///
 /// `libc::EPOLL_CTL_DEL` : 删除一个需要监视的文件描述符
 pub fn remove_interest(epoll_fd: RawFd, fd: RawFd) -> io::Result<()> {
     syscall!(epoll_ctl(

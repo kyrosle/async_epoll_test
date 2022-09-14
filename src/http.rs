@@ -33,6 +33,7 @@ impl RequestContext {
     }
     pub fn read_cb(&mut self, key: u64, epoll_fd: RawFd) -> io::Result<()> {
         let mut buf = [0u8; 4096];
+
         match self.stream.read(&mut buf) {
             Ok(_) => {
                 if let Ok(data) = std::str::from_utf8(&buf) {
@@ -45,9 +46,10 @@ impl RequestContext {
         self.buf.extend_from_slice(&buf);
         if self.buf.len() >= self.content_length {
             println!("got all data : {} bytes", self.buf.len());
-            modify_interest(epoll_fd, self.stream.as_raw_fd(), listener_read_event(key))?;
-        } else {
+
             modify_interest(epoll_fd, self.stream.as_raw_fd(), listener_write_event(key))?;
+        } else {
+            modify_interest(epoll_fd, self.stream.as_raw_fd(), listener_read_event(key))?;
         }
         Ok(())
     }
@@ -55,13 +57,12 @@ impl RequestContext {
         if data.contains("HTTP") {
             if let Some(content_length) = data
                 .lines()
-                .find(|l| l.to_lowercase().starts_with("content-length:"))
+                .find(|l| l.to_lowercase().starts_with("content-length: "))
             {
                 if let Some(len) = content_length
                     .to_lowercase()
-                    .strip_prefix("content-length:")
+                    .strip_prefix("content-length: ")
                 {
-                    println!("{}", self.content_length);
                     self.content_length = len.parse::<usize>().expect("content-length is valid");
                 }
             }
@@ -80,4 +81,3 @@ impl RequestContext {
         Ok(())
     }
 }
-
